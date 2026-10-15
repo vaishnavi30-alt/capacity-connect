@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CapacityConnect | Assessments</title>
+<link rel="stylesheet" href="portal.css">
+</head>
+<body>
+<header>
+  <div class="brand">Capacity<span>Connect</span></div>
+  <nav>
+    <a href="index.html">Dashboard</a>
+    <a href="skill-gap.html">Skill Gaps</a>
+    <a href="trainers.html">Trainers</a>
+    <a href="learning.html">Learning</a>
+    <a class="active" href="assessments.html">Assessments</a>
+    <a href="simulator.html">Simulator</a>
+    <a href="assistant.html">Assistant</a>
+  </nav>
+</header>
+<main>
+  <div class="eyebrow">Measure learning outcomes</div>
+  <h1>Skills Assessment Centre</h1>
+  <p class="subtitle">Record assessment scores and maintain a history of employee skill evaluations.</p>
+  <div id="status" class="status">Loading...</div>
+
+  <section class="panel">
+    <h2>Record an assessment</h2>
+    <p class="muted">Use an actual assessment result for your demo data. Do not treat an estimated score as a validated competency measurement.</p>
+
+    <form id="assessmentForm">
+      <div class="grid two">
+        <div class="field">
+          <label for="employee">Employee</label>
+          <select id="employee" required></select>
+        </div>
+        <div class="field">
+          <label for="skill">Skill assessed</label>
+          <select id="skill" required>
+            <option>Python</option>
+            <option>SQL</option>
+            <option>Machine Learning</option>
+            <option>Cloud Computing</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="score">Score achieved</label>
+          <input id="score" type="number" min="0" max="100" value="80" required>
+        </div>
+        <div class="field">
+          <label for="maxScore">Maximum score</label>
+          <input id="maxScore" type="number" min="1" value="100" required>
+        </div>
+      </div>
+      <button type="submit" id="saveBtn">Save Assessment</button>
+    </form>
+    <div id="result" class="card" hidden></div>
+  </section>
+
+  <section class="panel">
+    <h2>Assessment History</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Employee</th><th>Skill</th><th>Score</th>
+          <th>Recorded Level</th><th>Date</th>
+        </tr></thead>
+        <tbody id="history"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<footer>CapacityConnect · Assessments</footer>
+<script>
+const API = "http://127.0.0.1:8000";
+const $ = id => document.getElementById(id);
+
+function esc(v) {
+  return String(v ?? "").replace(/[&<>"']/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]
+  );
+}
+function message(text, type="") {
+  $("status").className = "status " + type;
+  $("status").textContent = text;
+}
+async function api(path, options={}) {
+  const res = await fetch(API + path, {
+    ...options,
+    headers: {"Content-Type":"application/json", ...(options.headers || {})}
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || "Request failed");
+  return data;
+}
+
+async function loadEmployees() {
+  const data = await api("/api/skills/");
+  $("employee").innerHTML = (data.employees || []).map(e =>
+    `<option value="${e.id}">${esc(e.name)} — ${esc(e.role)}</option>`
+  ).join("");
+}
+
+async function loadHistory() {
+  const data = await api("/api/assessments");
+  const rows = data.assessments || [];
+  $("history").innerHTML = rows.length ? rows.map(a => `
+    <tr>
+      <td>${esc(a.employee_name)}</td>
+      <td>${esc(a.skill)}</td>
+      <td>${a.score} / ${a.max_score} (${Math.round(a.score/a.max_score*100)}%)</td>
+      <td>${a.skill_level}/5</td>
+      <td>${esc(a.created_at)}</td>
+    </tr>
+  `).join("") : '<tr><td colspan="5">No assessments recorded yet.</td></tr>';
+}
+
+$("assessmentForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  $("saveBtn").disabled = true;
+  $("result").hidden = true;
+
+  try {
+    const data = await api("/api/assessments", {
+      method:"POST",
+      body:JSON.stringify({
+        employee_id:Number($("employee").value),
+        skill:$("skill").value,
+        score:Number($("score").value),
+        max_score:Number($("maxScore").value)
+      })
+    });
+
+    $("result").hidden = false;
+    $("result").innerHTML = `
+      <span class="badge">Assessment saved</span>
+      <h2>Result: ${esc(data.percentage)}%</h2>
+      <p>Recorded assessment level: ${esc(data.assessment.skill_level)}/5</p>
+      <p>Database skill level: ${esc(data.previous_skill_level)}/5 → ${esc(data.updated_skill_level)}/5</p>
+      <p class="muted">${esc(data.note)}</p>
+    `;
+
+    message("Assessment recorded successfully.", "success");
+    await loadHistory();
+  } catch(e) {
+    message("Could not save assessment: " + e.message, "error");
+  } finally {
+    $("saveBtn").disabled = false;
+  }
+});
+
+(async () => {
+  try {
+    await loadEmployees();
+    await loadHistory();
+    message("Assessment centre ready.", "success");
+  } catch(e) {
+    message("Could not load data: " + e.message, "error");
+  }
+})();
+</script>
+</body>
+</html>

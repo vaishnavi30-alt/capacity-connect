@@ -1,0 +1,635 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapacityConnect | Workforce Intelligence</title>
+<style>
+:root {
+  --navy:#17233e;
+  --blue:#4f6bed;
+  --teal:#12a99b;
+  --bg:#f5f7fb;
+  --muted:#8791a5;
+  --border:#e8ecf4;
+  --text:#26334d;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family:Inter,"Segoe UI",Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+button,input,select { font:inherit; }
+button { cursor:pointer; }
+.app { display:flex; min-height:100vh; }
+.sidebar {
+  width:244px;
+  background:var(--navy);
+  color:white;
+  padding:25px 16px;
+  display:flex;
+  flex-direction:column;
+  flex-shrink:0;
+}
+.brand {
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:0 10px 34px;
+}
+.brand-icon {
+  width:39px;height:39px;
+  display:grid;place-items:center;
+  border-radius:12px;
+  background:var(--blue);
+  font-size:22px;font-weight:bold;
+}
+.brand-name { font-size:18px;font-weight:750; }
+.brand-name span { color:#91a5ff; }
+.nav-label {
+  color:#7f8ba8;font-size:10px;
+  letter-spacing:1.7px;font-weight:700;
+  padding:0 12px;margin:9px 0 12px;
+}
+.nav-item {
+  width:100%;display:flex;align-items:center;gap:13px;
+  padding:12px 13px;margin:3px 0;
+  border:0;border-radius:9px;
+  background:transparent;color:#aab5cd;
+  text-align:left;font-size:13px;
+}
+.nav-item:hover { background:#253453;color:white; }
+.nav-item.active {
+  background:#354a77;color:white;
+  box-shadow:inset 3px 0 #8fa3ff;
+}
+.nav-item .ico { width:19px;text-align:center; }
+.sidebar-bottom { margin-top:auto; }
+.help-box {
+  background:#222f4c;border:1px solid #34415d;
+  border-radius:12px;padding:16px;margin:25px 3px 14px;
+}
+.help-box strong { font-size:12px; }
+.help-box p { color:#aebbd3;font-size:11px;line-height:1.6; }
+.help-box button {
+  background:var(--blue);border:0;color:white;
+  border-radius:7px;padding:9px;width:100%;
+}
+.profile {
+  display:flex;align-items:center;gap:10px;
+  padding:14px 8px 0;border-top:1px solid #34415d;
+}
+.avatar {
+  width:35px;height:35px;border-radius:50%;
+  display:grid;place-items:center;
+  background:#dce6ff;color:#344c91;
+  font-weight:800;font-size:12px;flex-shrink:0;
+}
+.profile strong { display:block;font-size:12px; }
+.profile small { color:#aab5cd;font-size:10px;display:block;margin-top:4px; }
+.main { flex:1;min-width:0; }
+.topbar {
+  min-height:76px;background:white;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:15px 32px;gap:18px;
+}
+.top-left { display:flex;align-items:center;gap:12px; }
+.menu-btn { display:none; }
+.breadcrumb { font-size:12px;color:var(--muted); }
+.breadcrumb strong { color:var(--text); }
+.top-actions { display:flex;align-items:center;gap:13px; }
+.search {
+  background:#f7f8fc;border:1px solid var(--border);
+  border-radius:9px;padding:10px 13px;width:210px;font-size:12px;
+}
+.icon-btn {
+  width:36px;height:36px;background:white;
+  border:1px solid var(--border);border-radius:9px;
+}
+.content { padding:29px 32px 35px;max-width:1550px;margin:auto; }
+.page-heading {
+  display:flex;justify-content:space-between;align-items:center;
+  gap:16px;margin-bottom:25px;
+}
+.eyebrow {
+  color:var(--blue);font-size:10px;
+  font-weight:800;letter-spacing:1.6px;
+}
+h1 { font-size:25px;letter-spacing:-.7px;margin:8px 0; }
+h2 { font-size:14px;margin:0; }
+.subtitle { color:var(--muted);font-size:12px;line-height:1.7; }
+.primary-btn {
+  background:var(--blue);color:white;border:0;
+  border-radius:9px;padding:12px 16px;
+  font-size:12px;font-weight:650;
+}
+.primary-btn:hover { background:#3d58d9; }
+.metrics {
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:16px;margin-bottom:20px;
+}
+.card {
+  background:white;border:1px solid var(--border);
+  border-radius:13px;padding:20px;min-width:0;
+  box-shadow:0 3px 12px #17233e04;
+}
+.metric-top { display:flex;justify-content:space-between;align-items:center;gap:8px; }
+.metric-label { font-size:12px;color:#69768d; }
+.metric-icon {
+  width:36px;height:36px;border-radius:10px;
+  display:grid;place-items:center;font-size:15px;
+}
+.blue { background:#edf0ff;color:#4f6bed; }
+.green { background:#e4f8f2;color:#129a82; }
+.orange { background:#fff2e3;color:#db8a32; }
+.purple { background:#f1eaff;color:#8d62da; }
+.metric-value { font-size:30px;font-weight:760;margin:18px 0 10px; }
+.metric-foot { color:var(--muted);font-size:10px; }
+.section-grid,.lower-grid {
+  display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);
+  gap:18px;margin-bottom:20px;
+}
+.card-heading {
+  display:flex;justify-content:space-between;
+  align-items:flex-start;gap:12px;margin-bottom:22px;
+}
+.card-heading p { margin:7px 0 0;color:var(--muted);font-size:11px; }
+.chart-legend { font-size:10px;color:#7d889d;margin-bottom:10px; }
+.chart-wrap { height:170px;width:100%; }
+.chart-wrap svg { width:100%;height:100%; }
+.skill-list { display:flex;flex-direction:column;gap:19px; }
+.skill-top {
+  display:flex;justify-content:space-between;
+  font-size:11px;gap:10px;margin-bottom:9px;
+}
+.track { height:8px;border-radius:8px;background:#eef1f7;overflow:hidden; }
+.fill { height:100%;border-radius:8px;transition:width .3s; }
+.fill-blue { background:#536ff0; }
+.fill-teal { background:#14b8a6; }
+.fill-orange { background:#f3a44c; }
+.fill-purple { background:#9a77e7; }
+.table-scroll { overflow-x:auto; }
+table { width:100%;border-collapse:collapse;text-align:left;white-space:nowrap; }
+th { font-size:10px;color:#929cb0;padding:0 12px 13px 0; }
+td { font-size:11px;padding:14px 12px 14px 0;border-top:1px solid #f0f2f7; }
+.tag { display:inline-block;padding:5px 8px;border-radius:6px;font-size:9px;font-weight:700; }
+.high { color:#c65b4b;background:#fff0ed; }
+.medium { color:#b17a24;background:#fff6e6; }
+.good { color:#138b71;background:#e6f8f1; }
+.status { font-size:11px;margin-top:12px;color:var(--muted); }
+.status-dot { display:inline-block;width:7px;height:7px;border-radius:50%;background:#e0a342;margin-right:6px; }
+.status-dot.ok { background:#14b88a; }
+.status-dot.bad { background:#e15e66; }
+select {
+  background:white;border:1px solid var(--border);
+  border-radius:9px;padding:12px;color:var(--text);
+}
+label { font-size:12px;font-weight:650; }
+.employee-info {
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;margin:20px 0;
+}
+.info-box { background:#f7f8fc;padding:15px;border-radius:10px; }
+.info-box small { display:block;color:var(--muted);font-size:10px;margin-bottom:8px; }
+.info-box strong { font-size:14px; }
+.skill-row { margin-bottom:20px; }
+.skill-row:last-child { margin-bottom:0; }
+.skill-row .skill-top { font-size:12px; }
+.gap-item {
+  padding:13px 0;border-top:1px solid #f0f2f7;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.footer-note { text-align:center;color:#a0a9ba;font-size:10px;padding:20px 0 0; }
+.toast {
+  position:fixed;right:22px;bottom:22px;
+  background:#17233e;color:white;border-radius:10px;
+  padding:13px 17px;font-size:12px;
+  box-shadow:0 8px 28px #17233e25;display:none;z-index:20;
+}
+#status { font-size:10px;color:var(--muted);margin-top:12px; }
+@media(max-width:1100px) {
+  .sidebar { width:210px; }
+  .content { padding:24px 20px; }
+  .topbar { padding:15px 20px; }
+  .metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:760px) {
+  .sidebar { display:none;position:fixed;inset:0 auto 0 0;z-index:10;width:250px; }
+  .sidebar.open { display:flex; }
+  .menu-btn { display:inline-block; }
+  .topbar { padding:13px 15px; }
+  .content { padding:22px 14px; }
+  .section-grid,.lower-grid { grid-template-columns:1fr; }
+  .page-heading { align-items:flex-start; }
+  .employee-info { grid-template-columns:1fr; }
+}
+@media(max-width:420px) {
+  .metrics { gap:10px; }
+  .card { padding:14px; }
+  .search { display:none; }
+  h1 { font-size:22px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-icon">✣</div>
+      <div class="brand-name">Capacity<span>Connect</span></div>
+    </div>
+    <div class="nav-label">WORKSPACE</div>
+    <button class="nav-item active" data-page="Overview"><span class="ico">◫</span>Overview</button>
+    <button class="nav-item" data-page="Employees"><span class="ico">♙</span>Employees / SkillTwin</button>
+    <button class="nav-item" data-page="Skill Gap Analysis"><span class="ico">⌁</span>Skill Gap Analysis</button>
+    <button class="nav-item" data-page="Learning Paths"><span class="ico">◎</span>Learning Paths</button>
+    <button class="nav-item" data-page="Courses"><span class="ico">▤</span>Courses</button>
+    <button class="nav-item" data-page="Trainers"><span class="ico">♧</span>Trainers</button>
+    <div class="nav-label" style="margin-top:28px">INSIGHTS</div>
+    <button class="nav-item" data-page="Reports"><span class="ico">▥</span>Reports & Analytics</button>
+    <button class="nav-item" data-page="Settings"><span class="ico">⚙</span>Settings</button>
+    <div class="sidebar-bottom">
+      <div class="help-box">
+        <strong>✦ Build your team's skills</strong>
+        <p>Discover learning opportunities and close critical skill gaps.</p>
+        <button id="exploreBtn">Explore SkillTwin →</button>
+      </div>
+      <div class="profile">
+        <div class="avatar">SJ</div>
+        <div><strong>Sarah Jenkins</strong><small>Learning Administrator</small></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="top-left">
+        <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+        <div class="breadcrumb">Workspace / <strong id="breadcrumb">Overview</strong></div>
+      </div>
+      <div class="top-actions">
+        <input class="search" id="search" placeholder="Search sections..." aria-label="Search sections">
+        <button class="icon-btn" id="notifyBtn" aria-label="Notifications">♧</button>
+        <div class="avatar">SJ</div>
+      </div>
+    </header>
+
+    <!-- OVERVIEW PAGE -->
+    <main class="content" id="overviewPage">
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow">WORKFORCE INTELLIGENCE</div>
+          <h1>Dashboard Overview</h1>
+          <div class="subtitle">Welcome back, Sarah. Here's what's happening with your workforce today.</div>
+          <div id="status"><span class="status-dot"></span>Connecting to CapacityConnect API...</div>
+        </div>
+        <button class="primary-btn" id="refreshBtn">↻ Refresh data</button>
+      </div>
+
+      <section class="metrics">
+        <article class="card">
+          <div class="metric-top"><span class="metric-label">Total Employees</span><span class="metric-icon blue">♙</span></div>
+          <div class="metric-value" id="employees">—</div>
+          <div class="metric-foot">Registered employees</div>
+        </article>
+        <article class="card">
+          <div class="metric-top"><span class="metric-label">Active Learners</span><span class="metric-icon green">↗</span></div>
+          <div class="metric-value" id="learners">—</div>
+          <div class="metric-foot"><strong id="learnerRate">—</strong> of employees</div>
+        </article>
+        <article class="card">
+          <div class="metric-top"><span class="metric-label">Active Courses</span><span class="metric-icon purple">▤</span></div>
+          <div class="metric-value" id="courses">—</div>
+          <div class="metric-foot">Courses available to learners</div>
+        </article>
+        <article class="card">
+          <div class="metric-top"><span class="metric-label">Skill Gap Alerts</span><span class="metric-icon orange">⌁</span></div>
+          <div class="metric-value" id="gaps">—</div>
+          <div class="metric-foot">Areas requiring attention</div>
+        </article>
+      </section>
+
+      <section class="section-grid">
+        <article class="card">
+          <div class="card-heading">
+            <div><h2>Learning Progress</h2><p>Illustrative organizational trend</p></div>
+            <span class="subtitle">Jan – Apr</span>
+          </div>
+          <div class="chart-legend">Learning capacity · Example data</div>
+          <div class="chart-wrap">
+            <svg viewBox="0 0 520 190" preserveAspectRatio="none" role="img" aria-label="Example learning trend">
+              <g stroke="#edf0f6">
+                <line x1="25" y1="25" x2="505" y2="25"/>
+                <line x1="25" y1="70" x2="505" y2="70"/>
+                <line x1="25" y1="115" x2="505" y2="115"/>
+                <line x1="25" y1="160" x2="505" y2="160"/>
+              </g>
+              <path d="M25 130 L180 110 L340 80 L500 45" fill="none" stroke="#536ff0" stroke-width="3" stroke-linecap="round"/>
+              <g fill="#536ff0">
+                <circle cx="25" cy="130" r="4"/><circle cx="180" cy="110" r="4"/>
+                <circle cx="340" cy="80" r="4"/><circle cx="500" cy="45" r="4"/>
+              </g>
+              <g fill="#8994a8" font-size="11" text-anchor="middle">
+                <text x="25" y="182">Jan</text><text x="180" y="182">Feb</text>
+                <text x="340" y="182">Mar</text><text x="500" y="182">Apr</text>
+              </g>
+            </svg>
+          </div>
+          <div class="subtitle">Illustrative preview; historical data is not yet connected.</div>
+        </article>
+        <article class="card">
+          <div class="card-heading"><div><h2>Workforce Skills</h2><p>Example distribution</p></div></div>
+          <div class="skill-list">
+            <div><div class="skill-top"><span>Data Analytics</span><span>78%</span></div><div class="track"><div class="fill fill-blue" style="width:78%"></div></div></div>
+            <div><div class="skill-top"><span>Communication</span><span>85%</span></div><div class="track"><div class="fill fill-teal" style="width:85%"></div></div></div>
+            <div><div class="skill-top"><span>Cybersecurity</span><span>42%</span></div><div class="track"><div class="fill fill-orange" style="width:42%"></div></div></div>
+            <div><div class="skill-top"><span>Leadership</span><span>64%</span></div><div class="track"><div class="fill fill-purple" style="width:64%"></div></div></div>
+          </div>
+          <div class="subtitle" style="margin-top:22px">Example scores, not live employee assessments.</div>
+        </article>
+      </section>
+
+      <section class="lower-grid">
+        <article class="card">
+          <div class="card-heading"><div><h2>Priority Skill Gaps</h2><p>Example workforce figures</p></div><button class="primary-btn" id="viewGaps">View analysis</button></div>
+          <div class="table-scroll">
+            <table>
+              <thead><tr><th>SKILL</th><th>REQUIRED</th><th>CURRENT</th><th>GAP</th></tr></thead>
+              <tbody>
+                <tr><td>Cybersecurity</td><td>40</td><td>17</td><td>23</td></tr>
+                <tr><td>Data Analytics</td><td>35</td><td>24</td><td>11</td></tr>
+                <tr><td>Cloud Computing</td><td>30</td><td>22</td><td>8</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="subtitle">Example figures for layout preview.</div>
+        </article>
+        <article class="card" id="learning">
+          <div class="card-heading"><div><h2>Recommended Learning</h2><p>Example courses</p></div></div>
+          <div class="gap-item"><span>Cybersecurity Fundamentals</span><span class="tag high">Beginner</span></div>
+          <div class="gap-item"><span>Data-Driven Decision Making</span><span class="tag medium">Intermediate</span></div>
+          <div class="gap-item"><span>Leadership Essentials</span><span class="tag good">Beginner</span></div>
+        </article>
+      </section>
+      <div class="footer-note">CapacityConnect · Workforce learning intelligence</div>
+    </main>
+
+    <!-- SKILLTWIN PAGE -->
+    <main class="content" id="skillTwinPage" style="display:none">
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow">EMPLOYEE INTELLIGENCE</div>
+          <h1>SkillTwin Dashboard</h1>
+          <div class="subtitle">Explore employee competencies and development opportunities.</div>
+          <div id="skillStatus" class="status">Connecting to employee skills API...</div>
+        </div>
+        <button class="primary-btn" id="loadSkillsBtn">↻ Refresh profiles</button>
+      </div>
+
+      <article class="card" style="margin-bottom:20px">
+        <div class="card-heading">
+          <div><h2>Employee Profile</h2><p>Select an employee to view their skill twin.</p></div>
+          <span class="metric-icon blue">ST</span>
+        </div>
+        <label for="employeeSelect">Choose employee</label><br><br>
+        <select id="employeeSelect" style="width:100%;max-width:440px">
+          <option value="">Loading employees...</option>
+        </select>
+        <div id="employeeProfile">
+          <p class="subtitle">Employee information will appear here.</p>
+        </div>
+      </article>
+
+      <article class="card" style="margin-bottom:20px">
+        <div class="card-heading">
+          <div><h2>Competency Graph</h2><p>Current skill ratings out of 5</p></div>
+        </div>
+        <div id="competencyGraph"><p class="subtitle">Select an employee to view skills.</p></div>
+      </article>
+
+      <article class="card" id="gapAnalysisCard">
+        <div class="card-heading">
+          <div><h2>Skill Gap Analysis</h2><p>Demo target level: 4 out of 5 for each listed skill</p></div>
+          <span class="metric-icon orange">⌁</span>
+        </div>
+        <div id="skillGapSummary" class="subtitle">Select an employee to calculate development opportunities.</div>
+      </article>
+      <div class="footer-note">SkillTwin uses demo employee data for this prototype.</div>
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const API = "http://127.0.0.1:8000";
+let employeesCache = [];
+
+function showToast(message) {
+  const toast = $("toast");
+  toast.textContent = message;
+  toast.style.display = "block";
+  clearTimeout(window.toastTimer);
+  window.toastTimer = setTimeout(() => toast.style.display = "none", 2600);
+}
+
+async function loadDashboard() {
+  const status = $("status");
+  status.innerHTML = '<span class="status-dot"></span> Connecting to API...';
+  try {
+    const response = await fetch(`${API}/api/dashboard`);
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    const data = await response.json();
+
+    $("employees").textContent = data.employees ?? "—";
+    $("learners").textContent = data.active_learners ?? "—";
+    $("courses").textContent = data.active_courses ?? "—";
+    $("gaps").textContent = data.skill_gap_alerts ?? "—";
+
+    const total = Number(data.employees);
+    const learners = Number(data.active_learners);
+    $("learnerRate").textContent =
+      total > 0 ? Math.round(learners / total * 100) + "%" : "—";
+
+    status.innerHTML = '<span class="status-dot ok"></span> Connected · Dashboard data loaded';
+  } catch (error) {
+    status.innerHTML = '<span class="status-dot bad"></span> API unavailable · Start FastAPI and refresh';
+    console.error("Dashboard API error:", error);
+  }
+}
+
+function setPage(page) {
+  const isOverview = page === "Overview";
+  const isEmployees = page === "Employees";
+  const isGapPage = page === "Skill Gap Analysis";
+  const isSkillPage = isEmployees || isGapPage;
+
+  $("overviewPage").style.display = isOverview ? "block" : "none";
+  $("skillTwinPage").style.display = isSkillPage ? "block" : "none";
+  $("breadcrumb").textContent = page;
+
+  document.querySelectorAll(".nav-item").forEach(item => {
+    item.classList.toggle("active", item.dataset.page === page);
+  });
+
+  $("sidebar").classList.remove("open");
+
+  if (isOverview) {
+    window.scrollTo({top:0,behavior:"smooth"});
+  } else if (isSkillPage) {
+    if (!employeesCache.length) loadEmployees();
+    if (isGapPage) {
+      setTimeout(() => $("gapAnalysisCard").scrollIntoView({behavior:"smooth",block:"start"}), 50);
+    } else {
+      window.scrollTo({top:0,behavior:"smooth"});
+    }
+  } else {
+    showToast(page + " module is planned for a future build.");
+  }
+}
+
+document.querySelectorAll(".nav-item").forEach(button => {
+  button.addEventListener("click", () => setPage(button.dataset.page));
+});
+
+async function loadEmployees() {
+  const select = $("employeeSelect");
+  const status = $("skillStatus");
+  status.textContent = "Loading employee profiles...";
+  select.innerHTML = '<option value="">Loading employees...</option>';
+
+  try {
+    const response = await fetch(`${API}/api/skills/`);
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    const data = await response.json();
+
+    if (!Array.isArray(data.employees) || data.employees.length === 0) {
+      throw new Error("No employees were returned by the API");
+    }
+
+    employeesCache = data.employees;
+    select.innerHTML = "";
+
+    employeesCache.forEach(employee => {
+      const option = document.createElement("option");
+      option.value = employee.id;
+      option.textContent = employee.name + " — " + employee.role;
+      select.appendChild(option);
+    });
+
+    status.innerHTML = '<span class="status-dot ok"></span> Connected · ' +
+      employeesCache.length + ' demo profiles loaded';
+
+    renderEmployee();
+  } catch (error) {
+    status.innerHTML = '<span class="status-dot bad"></span> Could not load profiles. Check that FastAPI is running.';
+    select.innerHTML = '<option value="">Unable to load employees</option>';
+    $("employeeProfile").textContent = "Could not load employee profiles.";
+    $("competencyGraph").textContent = "The API did not return skill data.";
+    $("skillGapSummary").textContent = "Start the backend and click Refresh profiles.";
+    console.error("Skills API error:", error);
+  }
+}
+
+function renderEmployee() {
+  const id = Number($("employeeSelect").value);
+  const employee = employeesCache.find(person => person.id === id);
+
+  if (!employee) return;
+
+  const skills = employee.skills || {};
+  const entries = Object.entries(skills);
+  const average = entries.length
+    ? (entries.reduce((sum, item) => sum + Number(item[1]), 0) / entries.length).toFixed(1)
+    : "—";
+
+  $("employeeProfile").innerHTML = `
+    <div class="employee-info">
+      <div class="info-box"><small>EMPLOYEE</small><strong>${escapeHTML(employee.name)}</strong></div>
+      <div class="info-box"><small>ROLE</small><strong>${escapeHTML(employee.role)}</strong></div>
+      <div class="info-box"><small>AVERAGE SKILL RATING</small><strong>${average} / 5</strong></div>
+    </div>
+  `;
+
+  const colors = ["fill-blue","fill-teal","fill-purple","fill-orange"];
+  $("competencyGraph").innerHTML = entries.length
+    ? entries.map(([name,rating],index) => {
+        const value = Math.max(0,Math.min(5,Number(rating)||0));
+        return `
+          <div class="skill-row">
+            <div class="skill-top">
+              <span>${escapeHTML(name)}</span>
+              <strong>${value} / 5</strong>
+            </div>
+            <div class="track">
+              <div class="fill ${colors[index % colors.length]}"
+                   style="width:${value/5*100}%"></div>
+            </div>
+          </div>
+        `;
+      }).join("")
+    : '<p class="subtitle">No skills are available for this employee.</p>';
+
+  const gaps = entries
+    .map(([name,rating]) => ({name, rating:Number(rating)||0, gap:Math.max(0,4-(Number(rating)||0))}))
+    .filter(skill => skill.gap > 0)
+    .sort((a,b) => b.gap-a.gap);
+
+  if (!entries.length) {
+    $("skillGapSummary").textContent = "No skills are available to compare.";
+  } else if (!gaps.length) {
+    $("skillGapSummary").innerHTML =
+      '<span class="tag good">On target</span> All listed skills meet the demo target of 4/5.';
+  } else {
+    $("skillGapSummary").innerHTML =
+      `<p class="subtitle">These skills are below the prototype target of 4/5. They are suggestions for learning, not formal employee evaluations.</p>` +
+      gaps.map(skill => `
+        <div class="gap-item">
+          <div>
+            <strong>${escapeHTML(skill.name)}</strong>
+            <div class="subtitle">Current rating: ${skill.rating}/5 · Target: 4/5</div>
+          </div>
+          <span class="tag ${skill.gap >= 2 ? "high" : "medium"}">
+            ${skill.gap} point${skill.gap === 1 ? "" : "s"} to target
+          </span>
+        </div>
+      `).join("");
+  }
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, character => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[character]));
+}
+
+$("refreshBtn").addEventListener("click", loadDashboard);
+$("loadSkillsBtn").addEventListener("click", loadEmployees);
+$("employeeSelect").addEventListener("change", renderEmployee);
+$("menuBtn").addEventListener("click", () => $("sidebar").classList.toggle("open"));
+$("viewGaps").addEventListener("click", () => setPage("Skill Gap Analysis"));
+$("exploreBtn").addEventListener("click", () => setPage("Employees"));
+$("notifyBtn").addEventListener("click", () => showToast("You're all caught up!"));
+
+$("search").addEventListener("keydown", event => {
+  if (event.key === "Enter" && event.target.value.trim()) {
+    const query = event.target.value.trim().toLowerCase();
+    const match = [...document.querySelectorAll(".nav-item")]
+      .find(item => item.dataset.page.toLowerCase().includes(query));
+    if (match) {
+      match.click();
+    } else {
+      showToast("No matching navigation section found.");
+    }
+  }
+});
+
+loadDashboard();
+</script>
+</body>
+</html>

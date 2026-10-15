@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CapacityConnect | Assistant</title>
+<link rel="stylesheet" href="portal.css">
+<style>
+.chat {
+  max-width: 800px;
+  margin: 24px auto;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.chat-head { background: var(--navy); color: white; padding: 20px; }
+.messages {
+  padding: 20px;
+  min-height: 300px;
+  max-height: 460px;
+  overflow-y: auto;
+}
+.bubble {
+  max-width: 90%;
+  padding: 13px 15px;
+  margin: 12px 0;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+.bot { background: #f0f3fa; }
+.user { background: #e4eafe; margin-left: auto; }
+.chat-form { padding: 16px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Capacity<span>Connect</span></div>
+  <nav>
+    <a href="index.html">Dashboard</a>
+    <a href="skill-gap.html">Skill Gaps</a>
+    <a href="trainers.html">Trainers</a>
+    <a href="learning.html">Learning</a>
+    <a href="assessments.html">Assessments</a>
+    <a href="simulator.html">Simulator</a>
+    <a class="active" href="assistant.html">Assistant</a>
+  </nav>
+</header>
+<main>
+  <div class="eyebrow">Workforce learning support</div>
+  <h1>CapacityConnect Assistant</h1>
+  <p class="subtitle">Ask how to use the platform and get guidance about skills, courses, trainers and capacity planning.</p>
+
+  <div class="chat">
+    <div class="chat-head">
+      <strong>Learning Intelligence Assistant</strong>
+      <div style="font-size:12px;margin-top:6px;color:#d4deef">
+        Rule-based prototype · No external AI API required
+      </div>
+    </div>
+    <div id="messages" class="messages" aria-live="polite">
+      <div class="bubble bot">Hi! Ask me about skill gaps, recommended courses, trainer matching, assessments or training simulations.</div>
+    </div>
+    <form id="chatForm" class="chat-form">
+      <div class="field">
+        <label for="employee">Optional employee context</label>
+        <select id="employee">
+          <option value="">General question</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="question">Your question</label>
+        <textarea id="question" rows="3" maxlength="1000" required placeholder="Example: How can I identify skill gaps?"></textarea>
+      </div>
+      <button id="sendBtn" type="submit">Send Question</button>
+    </form>
+  </div>
+</main>
+<footer>CapacityConnect · Assistant</footer>
+<script>
+const API = "http://127.0.0.1:8000";
+const $ = id => document.getElementById(id);
+
+function addBubble(text, kind) {
+  const div = document.createElement("div");
+  div.className = "bubble " + kind;
+  div.textContent = text;
+  $("messages").appendChild(div);
+  $("messages").scrollTop = $("messages").scrollHeight;
+}
+
+async function api(path, options={}) {
+  const res = await fetch(API + path, {
+    ...options,
+    headers: {"Content-Type":"application/json", ...(options.headers || {})}
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || "Request failed");
+  return data;
+}
+
+async function loadEmployees() {
+  const data = await api("/api/skills/");
+  for (const employee of (data.employees || [])) {
+    const option = document.createElement("option");
+    option.value = employee.id;
+    option.textContent = employee.name + " — " + employee.role;
+    $("employee").appendChild(option);
+  }
+}
+
+$("chatForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  const question = $("question").value.trim();
+  if (!question) return;
+
+  addBubble(question, "user");
+  $("question").value = "";
+  $("sendBtn").disabled = true;
+
+  try {
+    const payload = {question};
+    if ($("employee").value) {
+      payload.employee_id = Number($("employee").value);
+    }
+
+    const data = await api("/api/intelligence/assistant", {
+      method:"POST",
+      body:JSON.stringify(payload)
+    });
+
+    addBubble(data.answer, "bot");
+  } catch(e) {
+    addBubble("I couldn't reach the backend. Make sure the server is running. Details: " + e.message, "bot");
+  } finally {
+    $("sendBtn").disabled = false;
+    $("question").focus();
+  }
+});
+
+loadEmployees().catch(error => {
+  addBubble("Employee list unavailable. Start the backend and refresh the page. " + error.message, "bot");
+});
+</script>
+</body>
+</html>

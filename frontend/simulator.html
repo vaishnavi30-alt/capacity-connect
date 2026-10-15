@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CapacityConnect | Capacity Simulator</title>
+<link rel="stylesheet" href="portal.css">
+</head>
+<body>
+<header>
+  <div class="brand">Capacity<span>Connect</span></div>
+  <nav>
+    <a href="index.html">Dashboard</a>
+    <a href="skill-gap.html">Skill Gaps</a>
+    <a href="trainers.html">Trainers</a>
+    <a href="learning.html">Learning</a>
+    <a href="assessments.html">Assessments</a>
+    <a class="active" href="simulator.html">Simulator</a>
+    <a href="assistant.html">Assistant</a>
+  </nav>
+</header>
+<main>
+  <div class="eyebrow">What-if workforce planning</div>
+  <h1>Capacity Simulator</h1>
+  <p class="subtitle">Explore a hypothetical training plan and see the projected change in a skill gap and a simple skill-capacity indicator.</p>
+  <div id="status" class="status">Loading employees...</div>
+
+  <section class="panel">
+    <h2>Configure a scenario</h2>
+    <form id="simForm">
+      <div class="grid two">
+        <div class="field">
+          <label for="employee">Employee</label>
+          <select id="employee" required></select>
+        </div>
+        <div class="field">
+          <label for="skill">Skill to develop</label>
+          <select id="skill" required>
+            <option>Python</option>
+            <option>SQL</option>
+            <option>Machine Learning</option>
+            <option>Cloud Computing</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="hours">Proposed training hours (0–100)</label>
+        <input id="hours" type="number" min="0" max="100" step="1" value="10" required>
+      </div>
+      <button id="runBtn" type="submit">Run Simulation</button>
+    </form>
+  </section>
+
+  <div id="results" hidden>
+    <div class="grid">
+      <div class="card">
+        <div class="metric-label">CURRENT SKILL LEVEL</div>
+        <div id="current" class="metric-value">—</div>
+        <div class="muted">Out of 5</div>
+      </div>
+      <div class="card">
+        <div class="metric-label">PROJECTED SKILL LEVEL</div>
+        <div id="projected" class="metric-value">—</div>
+        <div class="muted">Illustrative estimate</div>
+      </div>
+      <div class="card">
+        <div class="metric-label">PROJECTED SKILL GAP</div>
+        <div id="gap" class="metric-value">—</div>
+        <div class="muted">Levels below the role target</div>
+      </div>
+    </div>
+    <section class="panel">
+      <h2>Capacity comparison</h2>
+      <p id="person" class="muted"></p>
+      <p>Current skill-capacity indicator</p>
+      <div class="bar"><div id="currentBar"></div></div>
+      <p id="currentText" class="muted"></p>
+      <p>Projected skill-capacity indicator</p>
+      <div class="bar"><div id="projectedBar"></div></div>
+      <p id="projectedText" class="muted"></p>
+      <p id="assumption" class="muted"></p>
+    </section>
+  </div>
+</main>
+<footer>CapacityConnect · Capacity Simulator</footer>
+<script>
+const API = "http://127.0.0.1:8000";
+const $ = id => document.getElementById(id);
+
+function esc(v) {
+  return String(v ?? "").replace(/[&<>"']/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]
+  );
+}
+function message(text, type="") {
+  $("status").className = "status " + type;
+  $("status").textContent = text;
+}
+async function api(path, options={}) {
+  const res = await fetch(API + path, {
+    ...options,
+    headers: {"Content-Type":"application/json", ...(options.headers || {})}
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || "Request failed");
+  return data;
+}
+
+async function loadEmployees() {
+  const data = await api("/api/skills/");
+  $("employee").innerHTML = (data.employees || []).map(e =>
+    `<option value="${e.id}">${esc(e.name)} — ${esc(e.role)}</option>`
+  ).join("");
+}
+
+$("simForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  $("runBtn").disabled = true;
+  message("Calculating scenario...");
+  try {
+    const data = await api("/api/intelligence/simulate", {
+      method:"POST",
+      body:JSON.stringify({
+        employee_id:Number($("employee").value),
+        skill:$("skill").value,
+        training_hours:Number($("hours").value)
+      })
+    });
+
+    $("results").hidden = false;
+    $("current").textContent = data.current_level + "/5";
+    $("projected").textContent = data.projected_level + "/5";
+    $("gap").textContent = data.projected_gap;
+    $("person").textContent =
+      `${data.employee_name} · ${data.role} · ${data.skill}`;
+    $("currentBar").style.width = data.current_capacity_score + "%";
+    $("projectedBar").style.width = data.projected_capacity_score + "%";
+    $("currentText").textContent =
+      `Current indicator: ${data.current_capacity_score}%`;
+    $("projectedText").textContent =
+      `Projected indicator: ${data.projected_capacity_score}%`;
+    $("assumption").textContent = data.assumption;
+    message("Simulation complete. Actual employee data was not changed.", "success");
+  } catch(e) {
+    message("Simulation failed: " + e.message, "error");
+  } finally {
+    $("runBtn").disabled = false;
+  }
+});
+
+loadEmployees().then(() => message("Ready to simulate training scenarios.", "success"))
+  .catch(e => message("Could not load employees: " + e.message, "error"));
+</script>
+</body>
+</html>

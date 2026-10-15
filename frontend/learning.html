@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CapacityConnect | Learning</title>
+<link rel="stylesheet" href="portal.css">
+</head>
+<body>
+<header>
+  <div class="brand">Capacity<span>Connect</span></div>
+  <nav>
+    <a href="index.html">Dashboard</a>
+    <a href="skill-gap.html">Skill Gaps</a>
+    <a href="trainers.html">Trainers</a>
+    <a class="active" href="learning.html">Learning</a>
+    <a href="assessments.html">Assessments</a>
+    <a href="simulator.html">Simulator</a>
+    <a href="assistant.html">Assistant</a>
+  </nav>
+</header>
+<main>
+  <div class="eyebrow">Learn · Practice · Grow</div>
+  <h1>Learning Management</h1>
+  <p class="subtitle">Browse learning resources, enroll employees and track course completion.</p>
+  <div id="status" class="status">Loading learning data...</div>
+
+  <section class="panel">
+    <h2>Enroll an employee</h2>
+    <div class="grid two">
+      <div class="field">
+        <label for="employee">Employee</label>
+        <select id="employee"></select>
+      </div>
+      <div class="field">
+        <label for="course">Course</label>
+        <select id="course"></select>
+      </div>
+    </div>
+    <button id="enrollBtn">Enroll Employee</button>
+  </section>
+
+  <h2>Course Catalogue</h2>
+  <div id="courses" class="grid">
+    <div class="card">Loading courses...</div>
+  </div>
+
+  <section class="panel">
+    <h2>Enrollment & Progress</h2>
+    <p class="muted">Update progress to reflect course completion. Setting progress to 100% marks a course as completed.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Employee</th><th>Course</th><th>Progress</th><th>Status</th><th>Action</th>
+        </tr></thead>
+        <tbody id="enrollments"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<footer>CapacityConnect · Learning Management</footer>
+<script>
+const API = "http://127.0.0.1:8000";
+const $ = id => document.getElementById(id);
+let courses = [];
+
+function esc(v) {
+  return String(v ?? "").replace(/[&<>"']/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]
+  );
+}
+function message(text, type="") {
+  $("status").className = "status " + type;
+  $("status").textContent = text;
+}
+async function api(path, options={}) {
+  const response = await fetch(API + path, {
+    ...options,
+    headers: {
+      "Content-Type":"application/json",
+      ...(options.headers || {})
+    }
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.detail || "Request failed");
+  return data;
+}
+
+async function load() {
+  try {
+    const [people, courseData] = await Promise.all([
+      api("/api/skills/"), api("/api/learning/courses")
+    ]);
+    courses = courseData.courses || [];
+    $("employee").innerHTML = (people.employees || []).map(e =>
+      `<option value="${e.id}">${esc(e.name)} — ${esc(e.role)}</option>`
+    ).join("");
+    $("course").innerHTML = courses.map(c =>
+      `<option value="${c.id}">${esc(c.title)} (${c.duration_hours}h)</option>`
+    ).join("");
+
+    $("courses").innerHTML = courses.map(c => `
+      <article class="card">
+        <span class="badge">${esc(c.skill)}</span>
+        <h2 style="margin-top:14px">${esc(c.title)}</h2>
+        <p class="muted">${esc(c.description)}</p>
+        <p><strong>${esc(c.level)}</strong> · ${c.duration_hours} hours</p>
+        <p class="muted">Provider: ${esc(c.provider)}</p>
+        <button type="button" onclick="chooseCourse(${c.id})">Select Course</button>
+      </article>
+    `).join("");
+
+    await refreshEnrollments();
+    message("Learning data loaded successfully.", "success");
+  } catch (e) {
+    message("Could not load data: " + e.message + ". Check that the backend is running.", "error");
+  }
+}
+
+function chooseCourse(id) {
+  $("course").value = String(id);
+  $("course").scrollIntoView({behavior:"smooth", block:"center"});
+}
+
+async function refreshEnrollments() {
+  const data = await api("/api/learning/enrollments");
+  const rows = data.enrollments || [];
+  $("enrollments").innerHTML = rows.length ? rows.map(en => `
+    <tr>
+      <td>${esc(en.employee_name)}</td>
+      <td>${esc(en.course_title)}</td>
+      <td>
+        ${en.progress}%
+        <div class="bar"><div style="width:${en.progress}%"></div></div>
+      </td>
+      <td>${esc(en.status)}</td>
+      <td>
+        <select id="progress-${en.id}" aria-label="Progress for ${esc(en.course_title)}">
+          ${[0,25,50,75,100].map(n =>
+            `<option value="${n}" ${n===en.progress?"selected":""}>${n}%</option>`
+          ).join("")}
+        </select>
+        <button onclick="saveProgress(${en.id})">Save</button>
+      </td>
+    </tr>
+  `).join("") : '<tr><td colspan="5">No enrollments yet.</td></tr>';
+}
+
+$("enrollBtn").addEventListener("click", async () => {
+  try {
+    await api("/api/learning/enrollments", {
+      method:"POST",
+      body:JSON.stringify({
+        employee_id:Number($("employee").value),
+        course_id:Number($("course").value)
+      })
+    });
+    await refreshEnrollments();
+    message("Employee enrolled successfully.", "success");
+  } catch(e) { message(e.message, "error"); }
+});
+
+async function saveProgress(id) {
+  try {
+    const progress = Number($("progress-" + id).value);
+    await api("/api/learning/enrollments/" + id, {
+      method:"PATCH", body:JSON.stringify({progress})
+    });
+    await refreshEnrollments();
+    message("Progress saved.", "success");
+  } catch(e) { message(e.message, "error"); }
+}
+load();
+</script>
+</body>
+</html>

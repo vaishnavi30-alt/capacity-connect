@@ -1,0 +1,669 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapacityConnect | Skill Gap Intelligence</title>
+
+<style>
+:root {
+    --navy: #101b35;
+    --blue: #4968e8;
+    --teal: #0e9f91;
+    --bg: #f4f6fb;
+    --text: #18243b;
+    --muted: #778198;
+    --border: #e6eaf2;
+    --red: #d84949;
+    --orange: #b76b10;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+}
+
+header {
+    background: var(--navy);
+    color: white;
+    padding: 22px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.brand {
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.brand span { color: #7ee5d8; }
+
+header a {
+    color: white;
+    text-decoration: none;
+    border: 1px solid #56627b;
+    padding: 10px 14px;
+    border-radius: 9px;
+    font-size: 13px;
+}
+
+main {
+    max-width: 1200px;
+    margin: auto;
+    padding: 32px 22px 50px;
+}
+
+.eyebrow {
+    color: var(--blue);
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1.3px;
+    font-size: 11px;
+}
+
+h1 {
+    margin: 9px 0;
+    font-size: clamp(25px, 4vw, 34px);
+}
+
+.subtitle {
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 8px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin: 28px 0 20px;
+}
+
+label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 7px;
+    font-weight: 700;
+}
+
+select, button {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 12px 14px;
+    font: inherit;
+    background: white;
+    color: var(--text);
+}
+
+select { min-width: 230px; }
+
+button {
+    background: var(--blue);
+    color: white;
+    border: 0;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+button:hover { opacity: .9; }
+
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.metric, .panel {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 21px;
+    box-shadow: 0 5px 20px rgba(24, 36, 59, .035);
+}
+
+.metric-label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.metric-value {
+    font-size: 31px;
+    font-weight: 800;
+    margin: 10px 0 5px;
+}
+
+.metric-note {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 1.05fr .95fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.panel { margin-bottom: 20px; }
+
+.panel h2 {
+    font-size: 17px;
+    margin: 0 0 7px;
+}
+
+.panel-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 21px;
+    line-height: 1.6;
+}
+
+.employee-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.employee-name {
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.role {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 5px;
+}
+
+.skill-row { margin: 21px 0; }
+
+.skill-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12px;
+    margin-bottom: 9px;
+}
+
+.skill-meta span:last-child { color: var(--muted); }
+
+.track {
+    background: #edf0f7;
+    border-radius: 20px;
+    height: 9px;
+    overflow: hidden;
+}
+
+.fill {
+    height: 100%;
+    border-radius: 20px;
+    background: var(--teal);
+}
+
+.fill.gap { background: #e8a44b; }
+
+.pill {
+    display: inline-block;
+    border-radius: 20px;
+    padding: 5px 9px;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.high { background: #ffebeb; color: #bc3030; }
+.medium { background: #fff2db; color: #975800; }
+.low { background: #e1f7ee; color: #147a55; }
+
+.gap-item {
+    border: 1px solid var(--border);
+    padding: 15px;
+    border-radius: 11px;
+    margin-top: 11px;
+}
+
+.gap-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+}
+
+.gap-name { font-weight: 800; font-size: 13px; }
+
+.gap-detail {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 9px;
+    line-height: 1.6;
+}
+
+.course {
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.course:last-child { border-bottom: 0; }
+
+.course-title {
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.5;
+}
+
+.course-meta {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+.course-reason {
+    font-size: 12px;
+    line-height: 1.6;
+    margin-top: 9px;
+}
+
+.empty, .status {
+    color: var(--muted);
+    font-size: 13px;
+    padding: 20px 0;
+    line-height: 1.7;
+}
+
+.error { color: var(--red); }
+
+footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    padding: 20px;
+}
+
+@media (max-width: 850px) {
+    .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 450px) {
+    main { padding: 23px 14px; }
+    .metric, .panel { padding: 16px; }
+    select { width: 100%; min-width: 0; }
+    .metric-value { font-size: 25px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">Capacity<span>Connect</span></div>
+    <a href="index.html">← Back to Dashboard</a>
+</header>
+
+<main>
+    <div class="eyebrow">Workforce Intelligence</div>
+    <h1>Skill Gap Detector</h1>
+    <p class="subtitle">
+        Identify missing competencies, prioritize training needs,
+        and discover learning recommendations for each employee.
+    </p>
+
+    <div class="topbar">
+        <div>
+            <label for="employeeSelect">Analyze employee</label>
+            <select id="employeeSelect">
+                <option value="all">All employees</option>
+            </select>
+        </div>
+        <button id="refreshButton" type="button">↻ Refresh analysis</button>
+    </div>
+
+    <div id="status" class="status">Loading skill-gap analysis...</div>
+
+    <section class="metrics">
+        <div class="metric">
+            <div class="metric-label">EMPLOYEES ANALYZED</div>
+            <div class="metric-value" id="employeeCount">—</div>
+            <div class="metric-note">Profiles evaluated</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">SKILL GAPS</div>
+            <div class="metric-value" id="gapCount">—</div>
+            <div class="metric-note">Competencies below target</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">HIGH PRIORITY</div>
+            <div class="metric-value" id="highCount">—</div>
+            <div class="metric-note">Gaps of two or more levels</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">COURSE SUGGESTIONS</div>
+            <div class="metric-value" id="courseCount">—</div>
+            <div class="metric-note">Matched to missing skills</div>
+        </div>
+    </section>
+
+    <div class="layout">
+        <div>
+            <section class="panel">
+                <h2>Employee Skill Profile</h2>
+                <p class="panel-desc">
+                    Current skill levels compared with the requirements
+                    for the employee's role. Levels range from 1 to 5.
+                </p>
+                <div id="employeeProfile" class="empty">
+                    Waiting for employee data...
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>Detected Skill Gaps</h2>
+                <p class="panel-desc">
+                    Gaps are prioritized by the difference between
+                    current and required skill levels.
+                </p>
+                <div id="gapResults" class="empty">
+                    Waiting for analysis...
+                </div>
+            </section>
+        </div>
+
+        <div>
+            <section class="panel">
+                <h2>Recommended Learning Paths</h2>
+                <p class="panel-desc">
+                    Suggested learning resources based on the employee's
+                    identified skill gaps.
+                </p>
+                <div id="courseResults" class="empty">
+                    Waiting for recommendations...
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>How prioritization works</h2>
+                <div class="gap-item">
+                    <span class="pill high">HIGH</span>
+                    <div class="gap-detail">
+                        Current skill is at least two levels below
+                        the role requirement.
+                    </div>
+                </div>
+                <div class="gap-item">
+                    <span class="pill medium">MEDIUM</span>
+                    <div class="gap-detail">
+                        Current skill is one level below
+                        the role requirement.
+                    </div>
+                </div>
+                <div class="gap-item">
+                    <span class="pill low">NO GAP</span>
+                    <div class="gap-detail">
+                        Current skill meets or exceeds the target level.
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<footer>
+    CapacityConnect · Skill Gap Intelligence · Prototype
+</footer>
+
+<script>
+const API_URL = "http://127.0.0.1:8000/api/skills/gaps";
+
+let analysisData = null;
+
+const $ = (id) => document.getElementById(id);
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+function severityClass(severity) {
+    if (severity === "High") return "high";
+    if (severity === "Medium") return "medium";
+    return "low";
+}
+
+function showStatus(message, isError = false) {
+    $("status").textContent = message;
+    $("status").className = isError ? "status error" : "status";
+}
+
+async function loadAnalysis() {
+    showStatus("Loading skill-gap analysis...");
+    $("refreshButton").disabled = true;
+
+    try {
+        const response = await fetch(API_URL);
+
+        if (!response.ok) {
+            throw new Error("API returned status " + response.status);
+        }
+
+        analysisData = await response.json();
+
+        if (!analysisData.employees) {
+            throw new Error("The API response has no employee data.");
+        }
+
+        const select = $("employeeSelect");
+        const previousValue = select.value;
+
+        select.innerHTML =
+            '<option value="all">All employees</option>' +
+            analysisData.employees.map((employee) =>
+                `<option value="${employee.employee_id}">
+                    ${escapeHTML(employee.employee_name)}
+                </option>`
+            ).join("");
+
+        if ([...select.options].some(
+            option => option.value === previousValue
+        )) {
+            select.value = previousValue;
+        }
+
+        renderAnalysis();
+        showStatus("Analysis loaded successfully from the backend.");
+    } catch (error) {
+        console.error("Skill-gap API error:", error);
+        showStatus(
+            "Could not load analysis. Check that the FastAPI backend " +
+            "is running and /api/skills/gaps opens successfully. " +
+            "Details: " + error.message,
+            true
+        );
+
+        $("employeeProfile").textContent = "Employee data unavailable.";
+        $("gapResults").textContent = "Analysis unavailable.";
+        $("courseResults").textContent = "Recommendations unavailable.";
+    } finally {
+        $("refreshButton").disabled = false;
+    }
+}
+
+function renderAnalysis() {
+    if (!analysisData) return;
+
+    const selectedId = $("employeeSelect").value;
+    const allEmployees = analysisData.employees;
+
+    const visibleEmployees = selectedId === "all"
+        ? allEmployees
+        : allEmployees.filter(
+            employee => String(employee.employee_id) === selectedId
+        );
+
+    const allGaps = visibleEmployees.flatMap(
+        employee => employee.gaps
+    );
+
+    const allCourses = visibleEmployees.flatMap(
+        employee => employee.recommendations.map(course => ({
+            ...course,
+            employee_name: employee.employee_name
+        }))
+    );
+
+    $("employeeCount").textContent = visibleEmployees.length;
+    $("gapCount").textContent = allGaps.length;
+    $("highCount").textContent = allGaps.filter(
+        gap => gap.severity === "High"
+    ).length;
+    $("courseCount").textContent = allCourses.length;
+
+    renderProfiles(visibleEmployees);
+    renderGaps(visibleEmployees);
+    renderCourses(allCourses, selectedId === "all");
+}
+
+function renderProfiles(employees) {
+    if (!employees.length) {
+        $("employeeProfile").textContent = "No employee found.";
+        return;
+    }
+
+    $("employeeProfile").innerHTML = employees.map(employee => {
+        const skills = Object.entries(employee.skills);
+        const required = employee.required_skills;
+
+        return `
+            <div style="margin-bottom:25px">
+                <div class="employee-heading">
+                    <div>
+                        <div class="employee-name">
+                            ${escapeHTML(employee.employee_name)}
+                        </div>
+                        <div class="role">${escapeHTML(employee.role)}</div>
+                    </div>
+                    <span class="pill ${
+                        employee.high_priority_gaps ? "high" : "low"
+                    }">
+                        ${employee.high_priority_gaps
+                            ? employee.high_priority_gaps + " HIGH"
+                            : "ON TRACK"}
+                    </span>
+                </div>
+
+                ${skills.map(([skill, level]) => {
+                    const target = required[skill] ?? 0;
+                    const gap = Math.max(target - level, 0);
+
+                    return `
+                        <div class="skill-row">
+                            <div class="skill-meta">
+                                <span>${escapeHTML(skill)}</span>
+                                <span>${level}/5 current · ${target}/5 target</span>
+                            </div>
+                            <div class="track">
+                                <div class="fill ${
+                                    gap > 0 ? "gap" : ""
+                                }" style="width:${Math.min(level * 20, 100)}%">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join("")}
+            </div>
+        `;
+    }).join("");
+}
+
+function renderGaps(employees) {
+    const items = employees.flatMap(employee =>
+        employee.gaps.map(gap => ({
+            ...gap,
+            employee_name: employee.employee_name
+        }))
+    );
+
+    if (!items.length) {
+        $("gapResults").innerHTML =
+            '<div class="empty">No skill gaps detected for this selection.</div>';
+        return;
+    }
+
+    $("gapResults").innerHTML = items.map(gap => `
+        <div class="gap-item">
+            <div class="gap-top">
+                <div class="gap-name">${escapeHTML(gap.skill)}</div>
+                <span class="pill ${severityClass(gap.severity)}">
+                    ${escapeHTML(gap.severity)} PRIORITY
+                </span>
+            </div>
+            ${$("employeeSelect").value === "all"
+                ? `<div class="gap-detail">Employee: ${escapeHTML(gap.employee_name)}</div>`
+                : ""}
+            <div class="gap-detail">
+                Current level: ${gap.current_level}/5 ·
+                Required: ${gap.required_level}/5 ·
+                Gap: ${gap.gap} level(s)
+            </div>
+        </div>
+    `).join("");
+}
+
+function renderCourses(courses, showEmployeeName) {
+    if (!courses.length) {
+        $("courseResults").innerHTML =
+            '<div class="empty">No course recommendations needed for this selection.</div>';
+        return;
+    }
+
+    $("courseResults").innerHTML = courses.map(course => `
+        <div class="course">
+            <div class="gap-top">
+                <div class="course-title">${escapeHTML(course.title)}</div>
+                <span class="pill ${severityClass(course.severity)}">
+                    ${escapeHTML(course.severity)}
+                </span>
+            </div>
+            <div class="course-meta">
+                ${escapeHTML(course.provider)} ·
+                ${escapeHTML(course.duration)} ·
+                ${escapeHTML(course.level)}
+            </div>
+            ${showEmployeeName
+                ? `<div class="course-meta">Suggested for: ${escapeHTML(course.employee_name)}</div>`
+                : ""}
+            <div class="course-reason">${escapeHTML(course.reason)}</div>
+            <div class="course-meta">
+                Skill focus: ${escapeHTML(course.skill)}
+            </div>
+        </div>
+    `).join("");
+}
+
+$("employeeSelect").addEventListener("change", renderAnalysis);
+$("refreshButton").addEventListener("click", loadAnalysis);
+
+loadAnalysis();
+</script>
+
+</body>
+</html>
